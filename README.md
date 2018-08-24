@@ -30,7 +30,7 @@ export default {
 ```
 
 Situation: Components A and B are living beside each other. 
-* Problem: At some point A is destroyed (unregisteres module 'cars') and after that B can not access store module 'cars' anymore.
+Problem: At some point A is destroyed (unregisteres module 'cars') and after that B can not access store module 'cars' anymore.
 
 ## Usage
 
