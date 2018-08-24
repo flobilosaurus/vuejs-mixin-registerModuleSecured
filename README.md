@@ -14,7 +14,9 @@ Modules under a specified path are only unregistered when no more components req
 
 ### Use Mixin
 ```javascript
+import Vue from 'vue'
 import createSecureModuleRegisterMixin from '@/SecureModuleRegisterMixin'
 
-Vue.mixin(createSecureModuleRegisterMixin(false))
+Vue.mixin(createSecureModuleRegisterMixin(false)) // register as global mixin
+...
 ```
