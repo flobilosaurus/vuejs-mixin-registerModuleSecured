@@ -3,8 +3,8 @@ const createSecureModuleRegistrationMixin = (debugEnabled) => {
     numRegistrations: {}
   }
 
-  const alreadyRegistered = (numRegistrations, path) => {
-    return numRegistrations[path] && numRegistrations[path] > 0
+  const alreadyRegistered = (store, path) => {
+    return store && store.state && store.state[path]
   }
 
   const log = debugEnabled ? (msg) => {
@@ -17,7 +17,11 @@ const createSecureModuleRegistrationMixin = (debugEnabled) => {
     },
     methods: {
       registerModule (path, rawModule) {
-        if (alreadyRegistered(this.numRegistrations, path)) {
+        if (alreadyRegistered(this.$store, path)) {
+          if (this.numRegistrations === 0) {
+            this.numRegistrations = 1
+            log(`A component registered module ${path} straight by $store.registerModule! I cannot secure the registration then...`)
+          }
           this.numRegistrations[path] += 1
         } else {
           this.numRegistrations[path] = 1
@@ -27,7 +31,7 @@ const createSecureModuleRegistrationMixin = (debugEnabled) => {
         log(`Currently ${this.numRegistrations[path]} components depend on module '${path}'`)
       },
       unregisterModule (path) {
-        if (alreadyRegistered(this.numRegistrations, path)) {
+        if (alreadyRegistered(this.$store, path)) {
           this.numRegistrations[path] -= 1
         } else {
           log(`Can not unregister non present module '${path}'`)

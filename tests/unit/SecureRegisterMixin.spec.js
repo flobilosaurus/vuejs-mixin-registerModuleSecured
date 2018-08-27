@@ -40,6 +40,7 @@ describe('SecureModuleRegisterMixin', () => {
   })
 
   it('decreases num of registrations when module is unregistered', () => {
+    wrapper.vm.$store.registerModule(path, module)
     wrapper.vm.numRegistrations[path] = 2
 
     wrapper.vm.unregisterModule(path)
@@ -62,13 +63,13 @@ describe('SecureModuleRegisterMixin', () => {
   })
 
   it('registerModule does only register module once when called twice in a row', () => {
-    wrapper.vm.$store.registerModule = jest.fn()
+    const registerModuleSpy = jest.spyOn(wrapper.vm.$store, 'registerModule')
 
     wrapper.vm.registerModule(path, module)
     wrapper.vm.registerModule(path, module)
 
-    expect(wrapper.vm.$store.registerModule).toHaveBeenCalledTimes(1)
-    expect(wrapper.vm.$store.registerModule).toHaveBeenCalledWith(path, module)
+    expect(registerModuleSpy).toHaveBeenCalledTimes(1)
+    expect(registerModuleSpy).toHaveBeenCalledWith(path, module)
   })
 
   it('unregisterModule does only unregister module once when called twice in a row', () => {
@@ -80,5 +81,35 @@ describe('SecureModuleRegisterMixin', () => {
 
     expect(wrapper.vm.$store.unregisterModule).toHaveBeenCalledTimes(1)
     expect(wrapper.vm.$store.unregisterModule).toHaveBeenCalledWith(path)
+  })
+
+  it('vuex overrides module state without options.preserveState', async () => {
+    const m1 = { namespaced: true, state: { foo: 'm1' } }
+    const m2 = { namespaced: true, state: {} }
+
+    wrapper.vm.$store.registerModule('module', m1)
+    wrapper.vm.$store.registerModule('module', m2)
+
+    expect(wrapper.vm.$store.state.module.foo).not.toBeDefined()
+  })
+
+  it('wont override state in store if module is registered already', () => {
+    const m1 = { namespaced: true, state: { foo: 'm1' } }
+    const m2 = { namespaced: true, state: {} }
+
+    wrapper.vm.registerModule('module', m1)
+    wrapper.vm.registerModule('module', m2)
+
+    expect(wrapper.vm.$store.state.module.foo).toBeDefined()
+  })
+
+  it('wont override state in store if module is registered already outside of mixin', () => {
+    const m1 = { namespaced: true, state: { foo: 'm1' } }
+    const m2 = { namespaced: true, state: {} }
+
+    wrapper.vm.$store.registerModule('module', m1)
+    wrapper.vm.registerModule('module', m2)
+
+    expect(wrapper.vm.$store.state.module.foo).toBeDefined()
   })
 })
